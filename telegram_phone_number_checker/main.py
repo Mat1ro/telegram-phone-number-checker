@@ -115,7 +115,7 @@ async def get_names(
                         str(phone_number),
                         str(e),
                     )
-    
+
         else:
             result.update(
                 {
@@ -135,6 +135,25 @@ async def get_names(
         raise
     logging.info("Done.")
     return result
+
+
+async def get_user_info_by_phone(
+    client: TelegramClient, phone_number: str
+) -> dict:
+    """
+    Convenience wrapper for fetching information about a single phone number.
+
+    - Нормализует номер (убирает пробелы, добавляет '+' при необходимости)
+    - Делегирует работу в get_names с download_profile_photos=False
+    """
+    if not phone_number:
+        return {"error": "Empty phone number"}
+
+    normalized = re.sub(r"\s+", "", phone_number, flags=re.UNICODE)
+    if not normalized.startswith("+"):
+        normalized = f"+{normalized}"
+
+    return await get_names(client, normalized, download_profile_photos=False)
 
 
 async def get_user_by_username(
